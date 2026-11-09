@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portfolio | ProofOfWork</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #090914;
+            color: #f5f3ff;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 22px 8%;
+            border-bottom: 1px solid #29243f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d0b19;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .brand span {
+            color: #a78bfa;
+        }
+
+        .header-label {
+            color: #a99bc9;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 55px auto;
+            padding: 20px;
+        }
+
+        .profile {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(120deg, #211638, #151329 65%, #251743);
+            border: 1px solid #49366d;
+            border-radius: 22px;
+            padding: 45px;
+            margin-bottom: 45px;
+            box-shadow: 0 15px 50px #00000030;
+        }
+
+        .profile::after {
+            content: "✦";
+            position: absolute;
+            right: 55px;
+            top: 30px;
+            font-size: 100px;
+            color: #a78bfa;
+            opacity: 0.12;
+        }
+
+        .profile-label {
+            color: #c4b5fd;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+        }
+
+        .profile h1 {
+            font-size: clamp(30px, 5vw, 46px);
+            margin-bottom: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .username {
+            color: #c4b5fd;
+            margin-bottom: 22px;
+        }
+
+        .bio {
+            color: #d0cadd;
+            line-height: 1.8;
+            max-width: 700px;
+        }
+
+        .skills-heading {
+            margin-top: 30px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #c4b5fd;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill {
+            background: #34244e;
+            color: #e9ddff;
+            border: 1px solid #594078;
+            padding: 9px 15px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+
+        .section-heading {
+            margin-bottom: 22px;
+        }
+
+        .section-heading p {
+            color: #a78bfa;
+            font-size: 11px;
+            letter-spacing: 2px;
+            margin-bottom: 9px;
+        }
+
+        .section-heading h2 {
+            font-size: 27px;
+        }
+
+        #achievements {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .achievement {
+            background: #151322;
+            border: 1px solid #302844;
+            border-radius: 17px;
+            padding: 25px;
+            transition: 0.25s;
+            overflow-wrap: anywhere;
+        }
+
+        .achievement:hover {
+            transform: translateY(-4px);
+            border-color: #8b5cf6;
+            box-shadow: 0 12px 30px #8b5cf620;
+        }
+
+        .achievement h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .type {
+            display: inline-block;
+            background: #302044;
+            color: #c4b5fd;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 14px;
+        }
+
+        .achievement p {
+            color: #c4c0d0;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .evidence-status {
+            color: #a99bc9;
+            font-size: 12px;
+        }
+
+        .evidence-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: #c4b5fd;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .evidence-link:hover {
+            color: white;
+        }
+
+        #status {
+            color: #c4b5fd;
+            text-align: center;
+            margin: 70px 0;
+            line-height: 1.7;
+        }
+
+        .empty-state {
+            color: #aaa3bb;
+            background: #151322;
+            border: 1px solid #302844;
+            border-radius: 15px;
+            padding: 25px;
+            grid-column: 1 / -1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 35px 20px;
+            color: #88819b;
+            border-top: 1px solid #29243f;
+            margin-top: 70px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 650px) {
+            header {
+                padding: 20px;
+            }
+
+            main {
+                margin: 25px auto;
+                padding: 15px;
+            }
+
+            .profile {
+                padding: 28px 22px;
+            }
+
+            .profile::after {
+                right: 15px;
+                top: 15px;
+                font-size: 65px;
+            }
+
+            #achievements {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading h2 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">Proof<span>OfWork.</span></div>
+    <div class="header-label">STUDENT PORTFOLIO</div>
+</header>
+
+<main>
+    <div id="status">Loading portfolio...</div>
+
+    <section id="profileSection" class="profile" hidden>
+        <p class="profile-label">STUDENT PROFILE</p>
+        <h1 id="studentName"></h1>
+        <div class="username" id="studentUsername"></div>
+        <p class="bio" id="studentBio"></p>
+
+        <h3 class="skills-heading">SKILLS & TECHNOLOGIES</h3>
+        <div class="skills" id="studentSkills"></div>
+    </section>
+
+    <section id="portfolioSection" hidden>
+        <div class="section-heading">
+            <p>WORK & ACCOMPLISHMENTS</p>
+            <h2>Projects & Achievements</h2>
+
+            <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="All">All</button>
+         <button class="filter-btn" data-filter="Project">Projects</button>
+    <button class="filter-btn" data-filter="Certificate">Certificates</button>
+        <button class="filter-btn" data-filter="Hackathon">Hackathons</button>
+        <button class="filter-btn" data-filter="Achievement">Achievements</button>
+</div>
+
+<div class="portfolio-search">
+    <input
+        type="text"
+        id="portfolioSearch"
+        placeholder="Search projects, certificates..."
+    >
+</div>
+        </div>
+
+        <div id="achievements"></div>
+    </section>
+</main>
+
+<footer>
+    Built with ProofOfWork. | Showcase your journey.
+</footer>
+
+<script>
+    async function loadPublicPortfolio() {
+        const status = document.getElementById("status");
+
+        const params = new URLSearchParams(window.location.search);
+        const username = params.get("username");
+
+        if (!username) {
+            status.textContent = "No username provided.";
+            return;
+        }
+
+        const { data: profile, error } = await supabaseClient
+            .from("profiles")
+            .select("id, full_name, username, bio, skills")
+            .eq("username", username)
+            .eq("is_public", true)
+            .maybeSingle();
+
+        if (error) {
+            status.textContent = "Could not load profile: " + error.message;
+            return;
+        }
+
+        if (!profile) {
+            status.textContent = "Portfolio not found or is private.";
+            return;
+        }
+
+        document.title = profile.full_name + " | ProofOfWork";
+
+        document.getElementById("studentName").textContent =
+            profile.full_name || "Student";
+
+        document.getElementById("studentUsername").textContent =
+            "@" + profile.username;
+
+        document.getElementById("studentBio").textContent =
+            profile.bio || "No bio added yet.";
+
+        const skillsBox = document.getElementById("studentSkills");
+        skillsBox.innerHTML = "";
+
+        (profile.skills || []).forEach(skill => {
+            const span = document.createElement("span");
+            span.className = "skill";
+            span.textContent = skill;
+            skillsBox.appendChild(span);
+        });
+
+        document.getElementById("profileSection").hidden = false;
+
+        const { data: entries, error: entriesError } =
+            await supabaseClient
+                .from("portfolio_entries")
+                .select("title, description, entry_type, evidence_url, evidence_status")
+                .eq("user_id", profile.id)
+                .order("created_at", { ascending: false });
+
+        if (entriesError) {
+            status.textContent =
+                "Profile loaded, but achievements could not load: " +
+                entriesError.message;
+            return;
+        }
+
+        const achievements = document.getElementById("achievements");
+        achievements.innerHTML = "";
+
+        if (entries.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-state";
+            empty.textContent = "No achievements added yet.";
+            achievements.appendChild(empty);
+        }
+
+        entries.forEach(entry => {
+            const card = document.createElement("div");
+            card.className = "achievement";
+            card.dataset.type=entry.entry_type;
+
+            const title = document.createElement("h3");
+            title.textContent = entry.title;
+
+            const type = document.createElement("div");
+            type.className = "type";
+            type.textContent = entry.entry_type;
+
+            const description = document.createElement("p");
+            description.textContent = entry.description || "";
+
+            const evidence = document.createElement("small");
+            evidence.className = "evidence-status";
+            evidence.textContent = entry.evidence_url
+                ? "Evidence linked"
+                : "Self-reported";
+
+            card.append(title, type, description, evidence);
+
+            if (entry.evidence_url) {
+                const anchor = document.createElement("a");
+                anchor.className = "evidence-link";
+                anchor.href = entry.evidence_url;
+                anchor.target = "_blank";
+                anchor.rel = "noopener noreferrer";
+                anchor.textContent = "View Evidence ↗";
+
+                card.appendChild(anchor);
+            }
+
+            achievements.appendChild(card);
+        });
+
+       // CATEGORY FILTERS + LIVE SEARCH
+
+const filterButtons = document.querySelectorAll(".filter-btn");
+const searchInput = document.getElementById("portfolioSearch");
+
+function applyFilters() {
+    const activeButton = document.querySelector(".filter-btn.active");
+    const selectedFilter = activeButton
+        ? activeButton.dataset.filter
+        : "All";
+
+    const searchText = searchInput.value.toLowerCase().trim();
+
+    document.querySelectorAll(".achievement").forEach(card => {
+        const matchesCategory =
+            selectedFilter === "All" ||
+            card.dataset.type === selectedFilter;
+
+        const matchesSearch =
+            card.textContent.toLowerCase().includes(searchText);
+
+        card.style.display =
+            matchesCategory && matchesSearch ? "" : "none";
+    });
+}
+
+filterButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        filterButtons.forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        applyFilters();
+    });
+});
+
+    searchInput.addEventListener("input", applyFilters);
+
+        document.getElementById("portfolioSection").hidden = false;
+        status.textContent = "";
+    }
+
+    loadPublicPortfolio();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ProofOfWork</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    
+</head>
+
+<body>
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">P</span>
+            <h2>Proof<span>OfWork.</span></h2>
+        </div>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a href="#overview" class="nav-link active">▦ Overview</a>
+            <a href="#add-achievement" class="nav-link">＋ Add Achievement</a>
+            <a href="#profile" class="nav-link">◉ My Profile</a>
+            <a href="#portfolio-entries" class="nav-link">▤ My Portfolio</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-user">
+                <div class="user-avatar">S</div>
+                <div>
+                    <strong>Student</strong>
+                    <small>Portfolio Account</small>
+                </div>
+            </div>
+            <button id="logoutBtn" class="sidebar-logout">↪ Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="topbar-label">STUDENT WORKSPACE</p>
+                <h2>Dashboard</h2>
+            </div>
+            <div class="topbar-actions">
+                <button id="copyPortfolioBtn" class="secondary-btn">Copy Portfolio Link</button>
+                <button id="sharePortfolioBtn" class="primary-btn">View My Portfolio ↗</button>
+            </div>
+        </header>
+
+        <section class="welcome" id="overview">
+            <div class="welcome-content">
+                <p class="eyebrow">YOUR JOURNEY STARTS HERE</p>
+                <h1>Welcome back,<br><span id="userName">Student</span>!</h1>
+                <p>Every project tells a story. Keep building, keep learning and showcase your progress.</p>
+            </div>
+            <div class="welcome-decoration">✦</div>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">▣</div>
+                <p>Total Entries</p>
+                <h3 id="totalEntries">—</h3>
+                <small>Your portfolio contributions</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⌘</div>
+                <p>Projects</p>
+                <h3 id="totalProjects">—</h3>
+                <small>Things you have built</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✧</div>
+                <p>Certificates</p>
+                <h3 id="totalCertificates">—</h3>
+                <small>Skills you have developed</small>
+            </div>
+        </section>
+
+
+        <!-- PORTFOLIO STRENGTH -->
+<section class="content-panel" id="portfolioStrength">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">PROFILE COMPLETION</p>
+            <h2>Portfolio Strength</h2>
+        </div>
+        <span class="heading-icon">✦</span>
+    </div>
+
+    <div class="strength-info">
+        <h3 id="strengthScore">0%</h3>
+        <span id="strengthLabel">Getting Started</span>
+    </div>
+
+    <div class="strength-bar">
+        <div id="strengthProgress"></div>
+    </div>
+
+    <p class="strength-tip" id="strengthTip">
+        Start building your student portfolio!
+    </p>
+</section>
+
+        <section class="content-panel" id="add-achievement">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">SHOWCASE YOUR WORK</p>
+                    <h2>Add a New Achievement</h2>
+                </div>
+                <span class="heading-icon">＋</span>
+            </div>
+
+            <form id="entryForm" class="form-grid">
+                <input type="text" id="title" placeholder="Achievement title" required>
+
+                <select id="entryType">
+                    <option value="Project">Project</option>
+                    <option value="Certificate">Certificate</option>
+                    <option value="Hackathon">Hackathon</option>
+                    <option value="Achievement">Achievement</option>
+                </select>
+
+                <textarea id="description" placeholder="Describe your achievement..."></textarea>
+
+                <input type="url" id="evidenceUrl" placeholder="Evidence link (optional)">
+
+                <button type="submit" class="primary-btn">+ Add to Portfolio</button>
+            </form>
+            <p id="message"></p>
+        </section>
+
+        <section class="content-panel" id="profile">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">YOUR IDENTITY</p>
+                    <h2>My Student Profile</h2>
+                </div>
+                <span class="heading-icon">◉</span>
+            </div>
+
+            <form id="profileForm" class="form-grid">
+                <input type="text" id="profileName" placeholder="Full Name" required>
+                <input type="text" id="username" placeholder="Choose a username" required>
+                <textarea id="bio" placeholder="Write something about yourself..."></textarea>
+                <input type="text" id="skills" placeholder="Skills (Python, HTML, CSS)">
+
+                <div class="privacy-option">
+                    <label>
+                        <input type="checkbox" id="isPublic" checked>
+                        Make my portfolio public
+                    </label>
+                    <small>Control who can view your portfolio.</small>
+                </div>
+
+                <button type="submit" class="primary-btn">Save Profile</button>
+            </form>
+            <p id="profileMessage"></p>
+        </section>
+
+        <section class="entries-section" id="portfolio-entries">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">YOUR ACHIEVEMENTS</p>
+                    <h2>My Portfolio Entries</h2>
+                </div>
+            </div>
+            <div id="entriesList">Loading your achievements...</div>
+        </section>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+   const entryForm = document.getElementById("entryForm");
+const entriesList = document.getElementById("entriesList");
+const message = document.getElementById("message");
+
+let currentUser;
+
+let currentEntries=[];
+
+// LOAD DASHBOARD
+
+async function loadDashboard() {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error || !data.session) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    currentUser = data.session.user;
+
+    await loadProfile();
+
+    document.getElementById("userName").textContent =
+        currentUser.user_metadata.full_name || currentUser.email;
+
+    await loadEntries();
+}
+
+// LOAD ENTRIES + UPDATE STATISTICS
+
+async function loadEntries() {
+    const { data, error } = await supabaseClient
+        .from("portfolio_entries")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        entriesList.textContent = "Could not load entries: " + error.message;
+        return;
+    }
+
+    currentEntries = data;
+        updatePortfolioStrength(currentEntries);
+
+    // UPDATE STATS
+
+    document.getElementById("totalEntries").textContent = data.length;
+
+    document.getElementById("totalProjects").textContent =
+        data.filter(entry => entry.entry_type === "Project").length;
+
+    document.getElementById("totalCertificates").textContent =
+        data.filter(entry => entry.entry_type === "Certificate").length;
+
+    // DISPLAY ENTRIES
+
+    entriesList.innerHTML = "";
+
+    if (data.length === 0) {
+        entriesList.textContent = "No achievements yet. Add your first one!";
+        return;
+    }
+
+    data.forEach(entry => {
+        const card = document.createElement("div");
+        card.className = "entry";
+
+        const details = document.createElement("div");
+
+        const heading = document.createElement("h3");
+        heading.textContent = entry.title;
+
+        const type = document.createElement("p");
+        type.textContent = entry.entry_type;
+
+        const description = document.createElement("p");
+        description.textContent = entry.description || "";
+
+        const status = document.createElement("small");
+        status.textContent = entry.evidence_url
+            ? "Evidence linked"
+            : "Self-reported";
+
+        details.append(heading, type, description, status);
+
+        if (entry.evidence_url) {
+            const link = document.createElement("a");
+            link.href = entry.evidence_url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "View Evidence";
+            details.appendChild(link);
+        }
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-btn";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => deleteEntry(entry.id));
+
+        card.append(details, deleteButton);
+        entriesList.appendChild(card);
+    });
+}
+
+// ADD ACHIEVEMENT
+
+entryForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    message.textContent = "Saving...";
+
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const evidenceUrl = document.getElementById("evidenceUrl").value.trim();
+
+    const { error } = await supabaseClient
+        .from("portfolio_entries")
+        .insert({
+            user_id: currentUser.id,
+            title: title,
+            entry_type: document.getElementById("entryType").value,
+            description: description,
+            evidence_url: evidenceUrl || null,
+            evidence_status: evidenceUrl
+                ? "Evidence linked"
+                : "Self-reported"
+        });
+
+    if (error) {
+        message.textContent = error.message;
+        return;
+    }
+
+    message.textContent = "Achievement added successfully!";
+    entryForm.reset();
+
+    await loadEntries();
+});
+
+// DELETE ACHIEVEMENT
+
+async function deleteEntry(id) {
+    if (!confirm("Delete this achievement?")) return;
+
+    const { error } = await supabaseClient
+        .from("portfolio_entries")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        message.textContent = error.message;
+        return;
+    }
+
+    message.textContent = "Achievement deleted.";
+    await loadEntries();
+}
+
+// LOGOUT
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+});
+
+// OPEN PUBLIC PORTFOLIO
+
+document.getElementById("sharePortfolioBtn").addEventListener("click", async () => {
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("username")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    if (!data || !data.username) {
+        alert("Please save your username in My Student Profile first.");
+        return;
+    }
+
+    window.open(
+        "portfolio.html?username=" + encodeURIComponent(data.username),
+        "_blank"
+    );
+});
+
+// COPY PORTFOLIO LINK
+
+document.getElementById("copyPortfolioBtn").addEventListener("click", async () => {
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("username")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    if (!data || !data.username) {
+        alert("Please save your username first.");
+        return;
+    }
+
+    const portfolioURL = new URL("portfolio.html", window.location.href);
+    portfolioURL.searchParams.set("username", data.username);
+
+    try {
+        await navigator.clipboard.writeText(portfolioURL.href);
+        alert("Portfolio link copied successfully!");
+    } catch (error) {
+        alert("Could not copy link. Please try again.");
+    }
+});
+
+// PROFILE EDITOR
+
+const profileForm = document.getElementById("profileForm");
+const profileMessage = document.getElementById("profileMessage");
+
+async function loadProfile() {
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("full_name, username, bio, skills, is_public")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+    if (error) {
+        profileMessage.textContent = error.message;
+        return;
+    }
+
+    if (data) {
+        document.getElementById("profileName").value = data.full_name || "";
+        document.getElementById("username").value = data.username || "";
+        document.getElementById("bio").value = data.bio || "";
+        document.getElementById("skills").value =
+            (data.skills || []).join(", ");
+
+        document.getElementById("isPublic").checked =
+            data.is_public !== false;
+    updatePortfolioStrength(currentEntries);
+}
+
+
+
+}
+
+// SAVE PROFILE
+
+profileForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    profileMessage.textContent = "Saving profile...";
+
+    const profileData = {
+        full_name: document.getElementById("profileName").value.trim(),
+        username: document.getElementById("username").value.trim(),
+        bio: document.getElementById("bio").value.trim(),
+        skills: document.getElementById("skills").value
+            .split(",")
+            .map(skill => skill.trim())
+            .filter(skill => skill !== ""),
+        is_public: document.getElementById("isPublic").checked
+    };
+
+    const { error } = await supabaseClient
+        .from("profiles")
+        .update(profileData)
+        .eq("id", currentUser.id);  
+
+    if (error) {
+        profileMessage.textContent = error.message;
+        return;
+    }
+
+    profileMessage.textContent = "Profile saved successfully!";
+
+        updatePortfolioStrength(currentEntries);
+});
+
+// PORTFOLIO STRENGTH CALCULATOR
+
+function updatePortfolioStrength(entries) {
+    let score = 0;
+
+    const name = document.getElementById("profileName").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const bio = document.getElementById("bio").value.trim();
+    const skills = document.getElementById("skills").value.trim();
+
+    if (name) score += 15;
+    if (username) score += 10;
+    if (bio) score += 20;
+    if (skills) score += 20;
+
+    if (entries.some(entry => entry.entry_type === "Project")) {
+        score += 20;
+    }
+
+    if (entries.some(entry => entry.evidence_url)) {
+        score += 15;
+    }
+
+    document.getElementById("strengthScore").textContent = score + "%";
+    document.getElementById("strengthProgress").style.width = score + "%";
+
+    let label = "Getting Started";
+    let tip = "Start building your student portfolio!";
+
+    if (score >= 40) {
+        label = "Building Momentum";
+        tip = "Good progress! Keep adding your achievements.";
+    }
+
+    if (score >= 70) {
+        label = "Almost There";
+        tip = "Your portfolio is looking strong!";
+    }
+
+    if (score === 100) {
+        label = "Excellent!";
+        tip = "Your portfolio checklist is complete!";
+    }
+
+    document.getElementById("strengthLabel").textContent = label;
+    document.getElementById("strengthTip").textContent = tip;
+}
+
+// START DASHBOARD
+
+loadDashboard();
+
+
+</script>
+
+</body>
+</html>
