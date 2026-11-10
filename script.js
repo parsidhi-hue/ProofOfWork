@@ -85,7 +85,7 @@ authForm.addEventListener("submit", async function(event) {
 
             if (error) throw error;
 
-            alert("Login successful!");
+            
             window.location.href = "dashboard.html";
         }
     } catch (error) {
