@@ -76,7 +76,9 @@ authForm.addEventListener("submit", async function(event) {
 
             if (error) throw error;
 
-            alert("Account created! Check your email for confirmation.");
+            const message = document.getElementById("authMessage");
+        message.textContent = "Account created! Check your email for confirmation.";
+            message.style.color = "#4ade80";
         } else {
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
@@ -89,7 +91,9 @@ authForm.addEventListener("submit", async function(event) {
             window.location.href = "dashboard.html";
         }
     } catch (error) {
-        alert(error.message);
+    const message = document.getElementById("authMessage");
+message.textContent = error.message;
+message.style.color = "#ff6b6b";
     } finally {
         authButton.disabled = false;
     }
